@@ -1,0 +1,35 @@
+image: golang:latest
+
+stages:
+    - lint
+    - test
+    # - build
+    # - deploy
+
+
+test_lint:
+    stage: lint
+    image: golangci/golangci-lint
+    script: 
+        - golangci-lint run
+
+test_code:
+  stage: test
+  script:
+    - go fmt $(go list ./... | grep -v /vendor/)
+    - go vet $(go list ./... | grep -v /vendor/)
+    - go test $(go list ./... | grep -v /vendor/) -v -test.short
+
+# compile:
+#   stage: build
+#   script:
+#     - mkdir -p mybinaries
+#     - go build -o mybinaries ./...
+#   artifacts:
+#     paths:
+#       - mybinaries
+
+# deploy:
+#   stage: deploy
+#   script: echo "Define your deployment script!"
+#   environment: production
