@@ -22,12 +22,16 @@ stages:
 
 
 test_lint:
+  except:
+    - main
   stage: lint
   image: golangci/golangci-lint
   script:
     - golangci-lint run
 
 test_code:
+  except:
+    - main
   stage: test
   script:
     - go fmt $(go list ./... | grep -v /vendor/)
@@ -35,6 +39,8 @@ test_code:
     - go test $(go list ./... | grep -v /vendor/) -v -test.short
 
 build_artefact:
+  except:
+    - main
   stage: build
   script:
     - mkdir bin
@@ -49,6 +55,8 @@ build_artefact:
       - bin
 
 build_image:
+  except:
+    - main
   stage: build
   image: docker:20.10.16
   services:
@@ -60,6 +68,8 @@ build_image:
     - docker push $CI_REGISTRY_IMAGE:latest
 
 build_to_docker_hub:
+  only:
+    - main
   stage: build
   image: docker:20.10.16
   services:
@@ -67,8 +77,8 @@ build_to_docker_hub:
   before_script:
     - docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_PASSWORD
   script:
-    - docker build -t wzie/demo-gads-app:latest .
-    - docker push wzie/demo-gads-app:latest
+    - docker build -t $DOCKER_HUB_USER/demo-gads-app:latest .
+    - docker push DOCKER_HUB_USER/demo-gads-app:latest
 
 # deploy:
 #   stage: deploy
