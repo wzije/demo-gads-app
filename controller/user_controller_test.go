@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 )
 
 var userCtrl = NewUserController()
@@ -32,4 +33,11 @@ func Test_userController_Fetch(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, 404, w.Code)
+}
+
+func TestConnectDatabaseNeedTenSecond(t *testing.T) {
+	if testing.Short() == true {
+		t.Skip()
+	}
+	time.Sleep(10 * time.Second)
 }
