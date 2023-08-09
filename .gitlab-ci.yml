@@ -20,7 +20,7 @@ stages:
   - lint
   - test
   - build
-  # - deploy
+  - deploy
 
 
 test_lint:
@@ -84,4 +84,5 @@ build_to_docker_hub:
 
 deploy:
   stage: deploy
-  script: ssh -i $SSH_PRIVATE_KEY $SERVER_USER@SERVER_IP "ls -al"
+  script:
+    - ssh -i $SSH_PRIVATE_KEY $SERVER_USER@SERVER_IP "ls -al"
