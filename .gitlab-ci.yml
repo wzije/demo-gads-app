@@ -85,4 +85,4 @@ build_to_docker_hub:
 deploy:
   stage: deploy
   script:
-    - ssh -i $SSH_PRIVATE_KEY $SERVER_USER@SERVER_IP "ls -al"
+    - ssh -i $SSH_PRIVATE_KEY $SERVER_USER@$SERVER_IP "ls -al"
