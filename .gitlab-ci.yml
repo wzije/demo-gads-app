@@ -3,7 +3,7 @@ image: golang:latest
 stages:
     - lint
     - test
-    # - build
+    - build
     # - deploy
 
 
@@ -20,14 +20,19 @@ test_code:
     - go vet $(go list ./... | grep -v /vendor/)
     - go test $(go list ./... | grep -v /vendor/) -v -test.short
 
-# compile:
-#   stage: build
-#   script:
-#     - mkdir -p mybinaries
-#     - go build -o mybinaries ./...
-#   artifacts:
-#     paths:
-#       - mybinaries
+build_artefact:
+   stage: build
+   script:
+     - mkdir bin
+     - mkdir bin/win
+     - mkdir bin/mac
+     - mkdir bin/linux
+     - GOOS=windows GOARCH=amd64 go build -o bin/win ./...
+     - GOOS=darwin GOARCH=amd64 go build -o bin/mac ./...
+     - GOOS=linux GOARCH=amd64 go build -o bin/linux ./...
+   artifacts:
+     paths:
+       - bin
 
 # deploy:
 #   stage: deploy
