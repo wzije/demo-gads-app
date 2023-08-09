@@ -11,6 +11,9 @@ workflow:
         IS_A_FEATURE: "true"                  # Define a new variable.
     - when: always
 
+variables:
+  DOCKER_HUB_USER: wzije
+
 stages:
   - lint
   - test
@@ -32,8 +35,6 @@ test_code:
     - go test $(go list ./... | grep -v /vendor/) -v -test.short
 
 build_artefact:
-  except:
-    - main
   stage: build
   script:
     - mkdir bin
@@ -48,8 +49,6 @@ build_artefact:
       - bin
 
 build_image:
-  except:
-    - main
   stage: build
   image: docker:20.10.16
   services:
@@ -60,6 +59,16 @@ build_image:
     - docker build -t $CI_REGISTRY_IMAGE:latest .
     - docker push $CI_REGISTRY_IMAGE:latest
 
+build_to_docker_hub:
+  stage: build
+  image: docker:20.10.16
+  services:
+    - docker:20.10.16-dind
+  before_script:
+    - docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_PASSWORD
+  script:
+    - docker build -t wzie/demo-gads-app:latest .
+    - docker push wzie/demo-gads-app:latest
 
 # deploy:
 #   stage: deploy
