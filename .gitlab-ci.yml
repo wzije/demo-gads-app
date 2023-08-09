@@ -1,17 +1,28 @@
 image: golang:latest
+# branch yang menjalanka proses ci hanya branch prefix feature
+
+workflow:
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+      variables:
+        DEPLOY_VARIABLE: "deploy-production"  # Override globally-defined DEPLOY_VARIABLE
+    - if: $CI_COMMIT_REF_NAME =~ /feature/
+      variables:
+        IS_A_FEATURE: "true"                  # Define a new variable.
+    - when: always
 
 stages:
-    - lint
-    - test
-    - build
-    # - deploy
+  - lint
+  - test
+  - build
+  # - deploy
 
 
 test_lint:
-    stage: lint
-    image: golangci/golangci-lint
-    script: 
-        - golangci-lint run
+  stage: lint
+  image: golangci/golangci-lint
+  script:
+    - golangci-lint run
 
 test_code:
   stage: test
@@ -21,20 +32,24 @@ test_code:
     - go test $(go list ./... | grep -v /vendor/) -v -test.short
 
 build_artefact:
-   stage: build
-   script:
-     - mkdir bin
-     - mkdir bin/win
-     - mkdir bin/mac
-     - mkdir bin/linux
-     - GOOS=windows GOARCH=amd64 go build -o bin/win ./...
-     - GOOS=darwin GOARCH=amd64 go build -o bin/mac ./...
-     - GOOS=linux GOARCH=amd64 go build -o bin/linux ./...
-   artifacts:
-     paths:
-       - bin
+  except:
+    - main
+  stage: build
+  script:
+    - mkdir bin
+    - mkdir bin/win
+    - mkdir bin/mac
+    - mkdir bin/linux
+    - GOOS=windows GOARCH=amd64 go build -o bin/win ./...
+    - GOOS=darwin GOARCH=amd64 go build -o bin/mac ./...
+    - GOOS=linux GOARCH=amd64 go build -o bin/linux ./...
+  artifacts:
+    paths:
+      - bin
 
 build_image:
+  except:
+    - main
   stage: build
   image: docker:20.10.16
   services:
